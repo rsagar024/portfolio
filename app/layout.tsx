@@ -4,6 +4,8 @@ import './globals.css'
 import { Toaster } from 'sonner'
 import CustomCursor from './components/effects/CustomCursor'
 import MouseSpotlight from './components/effects/MouseSpotlight'
+import Providers from './components/Providers'
+import { SITE, SITE_URL } from './lib/site'
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -24,16 +26,17 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://sagar.dev'),
-  title: 'Sagar | Flutter Dev · Frontend Eng · Ethical Hacker',
-  description: 'Sagar — Flutter developer, Angular frontend engineer & ethical hacker with 2.5+ years building futuristic apps and secure digital experiences.',
-  keywords: ['Flutter', 'Angular', 'TypeScript', 'Cybersecurity', 'Ethical Hacker', 'Frontend Engineer', 'Firebase', 'Mobile Dev'],
+  metadataBase: new URL(SITE_URL),
+  title: SITE.title,
+  description: SITE.description,
+  keywords: ['Flutter', 'React', 'TypeScript', 'Cybersecurity', 'Ethical Hacker', 'Frontend Engineer', 'Firebase', 'Mobile Dev'],
+  alternates: { canonical: '/' },
   openGraph: {
     title: 'Sagar | Cyberpunk Portfolio',
     description: 'Building futuristic apps & secure digital experiences.',
     type: 'website',
-    url: 'https://sagar.dev',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    url: '/',
+    siteName: SITE.name,
   },
   twitter: {
     card: 'summary_large_image',
@@ -55,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} bg-cyber-black text-white antialiased overflow-x-hidden`}>
         <CustomCursor />
         <MouseSpotlight />
-        {children}
+        <Providers>{children}</Providers>
         <Toaster
           theme="dark"
           toastOptions={{

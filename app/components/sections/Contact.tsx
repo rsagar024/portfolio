@@ -1,32 +1,59 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { Send, Mail, Github, Linkedin, Twitter, Shield } from 'lucide-react'
+import { Send, Mail, Github, Linkedin, Shield } from 'lucide-react'
 import { toast } from 'sonner'
+import { CONTACT_PREFILL_EVENT, type ContactPrefillDetail } from '../../lib/contactPrefill'
 
 export default function Contact() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
+  const [website, setWebsite] = useState('') // honeypot — hidden from real users
   const [loading, setLoading] = useState(false)
+
+  // "Discuss this" on a service card pre-fills the subject, then focuses the first empty field.
+  useEffect(() => {
+    const onPrefill = (e: Event) => {
+      const { subject } = (e as CustomEvent<ContactPrefillDetail>).detail
+      setForm(p => ({ ...p, subject }))
+      window.setTimeout(() => {
+        const firstEmpty = (['contact-name', 'contact-email', 'contact-message'] as const)
+          .map(id => document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null)
+          .find(el => el && !el.value)
+        firstEmpty?.focus({ preventScroll: true })
+      }, 600)
+    }
+    window.addEventListener(CONTACT_PREFILL_EVENT, onPrefill)
+    return () => window.removeEventListener(CONTACT_PREFILL_EVENT, onPrefill)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Simulate API call — integrate with your preferred email service
-    await new Promise(r => setTimeout(r, 1500))
-    toast.success('Message encrypted and sent! Will respond within 24hrs.', {
-      icon: <Shield className="w-4 h-4" />,
-    })
-    setForm({ name: '', email: '', subject: '', message: '' })
-    setLoading(false)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, website }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Could not send your message. Please try again later.')
+      toast.success("Message sent! I'll get back to you soon.", {
+        icon: <Shield className="w-4 h-4" />,
+      })
+      setForm({ name: '', email: '', subject: '', message: '' })
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const socials = [
-    { icon: Mail, label: 'Email', value: 'sagar@dev.io', href: 'mailto:sagar@dev.io', color: '#00d4ff' },
-    { icon: Github, label: 'GitHub', value: 'github.com/sagar', href: 'https://github.com/sagar', color: '#b000ff' },
-    { icon: Linkedin, label: 'LinkedIn', value: 'linkedin.com/in/sagar', href: 'https://linkedin.com/in/sagar', color: '#00fff7' },
-    { icon: Twitter, label: 'Twitter', value: '@sagar_dev', href: 'https://twitter.com/sagar', color: '#00ff88' },
+    { icon: Mail, label: 'Email', value: 'sagarsahusts@gmail.com', href: 'mailto:sagarsahusts@gmail.com', color: '#00d4ff' },
+    { icon: Github, label: 'GitHub', value: 'github.com/rsagar024', href: 'https://github.com/rsagar024', color: '#b829ff' },
+    { icon: Linkedin, label: 'LinkedIn', value: 'linkedin.com/in/rsagar024', href: 'https://linkedin.com/in/rsagar024', color: '#00fff7' },
   ]
 
   return (
@@ -38,10 +65,10 @@ export default function Contact() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           className="mb-20 text-center"
         >
-          <div className="font-mono text-neon-blue text-sm mb-3">// contact.secure</div>
+          <div className="font-mono text-neon-blue text-sm mb-3">{'// contact.secure'}</div>
           <h2 className="section-heading text-5xl lg:text-6xl gradient-text mb-4">GET IN TOUCH</h2>
           <div className="w-24 h-px mx-auto mb-4" style={{ background: 'linear-gradient(90deg, transparent, var(--neon-blue), transparent)' }} />
-          <p className="font-body text-gray-500 max-w-lg mx-auto">All communications are end-to-end encrypted. Let's build something extraordinary.</p>
+          <p className="font-body text-gray-400 max-w-lg mx-auto">Have a project, role or security audit in mind? Let&apos;s build something extraordinary.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -52,48 +79,69 @@ export default function Contact() {
             transition={{ delay: 0.2 }}
           >
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Honeypot: off-screen field that only bots fill in */}
+              <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+                <label htmlFor="contact-website">Website</label>
+                <input
+                  id="contact-website"
+                  name="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={website}
+                  onChange={e => setWebsite(e.target.value)}
+                />
+              </div>
+
               {[
-                { name: 'name', label: 'FULL NAME', type: 'text', placeholder: 'John Doe' },
-                { name: 'email', label: 'EMAIL ADDRESS', type: 'email', placeholder: 'john@example.com' },
-                { name: 'subject', label: 'SUBJECT', type: 'text', placeholder: 'Project collaboration' },
+                { name: 'name', label: 'FULL NAME', type: 'text', placeholder: 'John Doe', autoComplete: 'name', maxLength: 100 },
+                { name: 'email', label: 'EMAIL ADDRESS', type: 'email', placeholder: 'john@example.com', autoComplete: 'email', maxLength: 200 },
+                { name: 'subject', label: 'SUBJECT', type: 'text', placeholder: 'Project collaboration', autoComplete: 'off', maxLength: 150 },
               ].map((field) => (
                 <div key={field.name}>
-                  <label className="font-display text-xs tracking-widest text-gray-500 mb-2 block">{field.label}</label>
+                  <label htmlFor={`contact-${field.name}`} className="font-display text-xs tracking-widest text-gray-400 mb-2 block">{field.label}</label>
                   <input
+                    id={`contact-${field.name}`}
+                    name={field.name}
                     type={field.type}
+                    autoComplete={field.autoComplete}
+                    maxLength={field.maxLength}
                     placeholder={field.placeholder}
                     value={form[field.name as keyof typeof form]}
                     onChange={e => setForm(p => ({ ...p, [field.name]: e.target.value }))}
                     required
-                    className="cyber-input w-full px-4 py-3 rounded-lg font-mono text-sm placeholder-gray-700"
+                    className="cyber-input w-full px-4 py-3 rounded-lg font-mono text-sm placeholder-gray-500"
                   />
                 </div>
               ))}
 
               <div>
-                <label className="font-display text-xs tracking-widest text-gray-500 mb-2 block">MESSAGE</label>
+                <label htmlFor="contact-message" className="font-display text-xs tracking-widest text-gray-400 mb-2 block">MESSAGE</label>
                 <textarea
+                  id="contact-message"
+                  name="message"
+                  maxLength={5000}
                   placeholder="Describe your project or inquiry..."
                   value={form.message}
                   onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
                   required
                   rows={5}
-                  className="cyber-input w-full px-4 py-3 rounded-lg font-mono text-sm placeholder-gray-700 resize-none"
+                  className="cyber-input w-full px-4 py-3 rounded-lg font-mono text-sm placeholder-gray-500 resize-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="cyber-btn w-full py-4 bg-neon-blue text-black font-display text-sm tracking-widest font-bold flex items-center justify-center gap-3 hover:shadow-[0_0_30px_rgba(0,212,255,0.5)] transition-all duration-300 disabled:opacity-50 rounded-lg"
+                className="cyber-btn w-full py-4 bg-neon-blue text-cyber-black font-display text-sm tracking-widest font-bold flex items-center justify-center gap-3 hover:shadow-[0_0_30px_rgba(0,212,255,0.5)] transition-all duration-300 disabled:opacity-50 rounded-lg"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                    ENCRYPTING & SENDING...
+                    <div className="w-4 h-4 border-2 border-cyber-black/30 border-t-cyber-black rounded-full animate-spin" />
+                    SENDING...
                   </>
                 ) : (
-                  <><Send className="w-4 h-4" /> SEND MESSAGE</>
+                  <><Send className="w-4 h-4" aria-hidden="true" /> SEND MESSAGE</>
                 )}
               </button>
             </form>
@@ -107,14 +155,14 @@ export default function Contact() {
             className="space-y-6"
           >
             <div className="font-mono text-neon-blue text-sm mb-8">
-              <span className="text-gray-600">$ </span>connect --channels
+              <span className="text-gray-400">$ </span>connect --channels
             </div>
 
             {socials.map((s, i) => (
               <motion.a
                 key={i}
                 href={s.href}
-                target="_blank"
+                target={s.href.startsWith('http') ? '_blank' : undefined}
                 rel="noopener noreferrer"
                 initial={{ opacity: 0, x: 20 }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -128,7 +176,7 @@ export default function Contact() {
                   <s.icon className="w-5 h-5" style={{ color: s.color }} />
                 </div>
                 <div>
-                  <div className="font-display text-xs tracking-widest text-gray-500 mb-0.5">{s.label}</div>
+                  <div className="font-display text-xs tracking-widest text-gray-400 mb-0.5">{s.label}</div>
                   <div className="font-mono text-sm text-white group-hover:transition-colors duration-300" style={{ color: undefined }}>
                     {s.value}
                   </div>
@@ -142,10 +190,10 @@ export default function Contact() {
             <div className="hologram-effect rounded-xl p-5 mt-8">
               <div className="flex items-center gap-2 mb-3">
                 <Shield className="w-4 h-4 text-neon-green" />
-                <span className="font-display text-xs tracking-widest text-neon-green">SECURE CHANNEL</span>
+                <span className="font-display text-xs tracking-widest text-neon-green">OPEN TO WORK</span>
               </div>
-              <p className="font-mono text-xs text-gray-500 leading-relaxed">
-                Available for freelance projects, full-time roles, security audits, and collaboration. Response time: &lt;24hrs.
+              <p className="font-mono text-xs text-gray-400 leading-relaxed">
+                Available for freelance projects, full-time roles, security audits, and collaboration. I usually reply within a couple of days.
               </p>
             </div>
           </motion.div>

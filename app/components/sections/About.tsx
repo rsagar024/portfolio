@@ -2,30 +2,51 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Shield, Code2, Smartphone, Globe, User, Zap } from 'lucide-react'
+import type { ProjectCount } from '../../lib/playStore'
 
-const stats = [
-  { val: '2.5+', label: 'Years Experience', color: 'text-neon-blue' },
-  { val: '15+', label: 'Projects Shipped', color: 'text-neon-purple' },
-  { val: '5+', label: 'Tech Stacks', color: 'text-neon-cyan' },
-  { val: '∞', label: 'Problems Solved', color: 'text-neon-green' },
-]
+const yearsStat = { val: '3.4+', label: 'Years Experience', color: 'text-neon-blue' }
+const stacksStat = { val: '5+', label: 'Tech Stacks', color: 'text-neon-cyan' }
 
 const roles = [
   { icon: Smartphone, title: 'Flutter Developer', desc: 'Cross-platform mobile apps with clean architecture, BLoC, Provider & Firebase integration.', color: 'var(--neon-blue)' },
-  { icon: Globe, title: 'Angular Frontend', desc: 'Enterprise-grade SPAs with TypeScript, reactive patterns, and pixel-perfect UI.', color: 'var(--neon-purple)' },
+  { icon: Globe, title: 'React Frontend', desc: 'Enterprise-grade SPAs with TypeScript, reactive patterns, and pixel-perfect UI.', color: 'var(--neon-purple)' },
   { icon: Shield, title: 'Ethical Hacker', desc: 'API security, network recon, authentication audits, and vulnerability research.', color: 'var(--neon-green)' },
   { icon: Code2, title: 'Security Researcher', desc: 'Exploring new attack vectors, hardening systems, building secure auth pipelines.', color: 'var(--neon-cyan)' },
 ]
 
 const timeline = [
-  { year: '2022', event: 'Started professional career as Flutter Developer at LeadRat CRM' },
-  { year: '2023', event: 'Expanded into Angular frontend development & Firebase architecture' },
-  { year: '2024', event: 'Deep-dived into cybersecurity: networking, API security, ethical hacking' },
-  { year: '2025', event: 'Full-stack security-conscious developer — building and breaking systems' },
+  {
+    year: '2023',
+    title: 'Flutter Developer',
+    company: 'LeadRat CRM',
+    desc: 'Started my professional career building cross-platform CRM apps in Flutter, from lead management screens to Firebase integration.',
+  },
+  {
+    year: '2025',
+    title: 'Flutter Developer',
+    company: 'Quokka Labs LLP',
+    desc: 'Delivered production mobile apps for clients with clean architecture, BLoC state management and secure API integrations.',
+  },
+  {
+    year: '2026',
+    title: 'Senior Flutter Developer',
+    company: 'Latinem',
+    desc: 'Leading Flutter development: owning app architecture, reviewing code and shipping secure, scalable mobile experiences.',
+  },
 ]
 
-export default function About() {
+export default function About({ publicRepos, projects }: { publicRepos: number | null; projects: ProjectCount | null }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
+  // 4th stat is live from GitHub (cached hourly); static fallback if GitHub is unreachable.
+  const stats = [
+    yearsStat,
+    // Live: own GitHub repos + apps on Google Play; static fallback if GitHub is unreachable.
+    { val: projects ? String(projects.total) : '15+', label: 'Projects Shipped', color: 'text-neon-purple' },
+    stacksStat,
+    publicRepos !== null
+      ? { val: String(publicRepos), label: 'Public Repos', color: 'text-neon-green' }
+      : { val: '4', label: 'Featured Apps', color: 'text-neon-green' },
+  ]
 
   return (
     <section id="about" className="relative py-32 z-10">
@@ -38,7 +59,7 @@ export default function About() {
           transition={{ duration: 0.6 }}
           className="mb-20 text-center"
         >
-          <div className="font-mono text-neon-blue text-sm mb-3">// about.sys</div>
+          <div className="font-mono text-neon-blue text-sm mb-3">{'// about.sys'}</div>
           <h2 className="section-heading text-5xl lg:text-6xl gradient-text mb-4">WHO AM I</h2>
           <div className="w-24 h-px mx-auto" style={{ background: 'linear-gradient(90deg, transparent, var(--neon-blue), transparent)' }} />
         </motion.div>
@@ -57,10 +78,10 @@ export default function About() {
                 <h3 className="font-display text-xl text-white">Professional Story</h3>
               </div>
               <p className="font-body text-gray-400 leading-relaxed text-lg">
-                I'm <span className="text-neon-blue">Sagar</span> — a developer who lives at the intersection of beautiful UX and bulletproof security. With 2.5+ years building production apps, I've architected CRM systems, real-time communication platforms, and cross-platform mobile experiences.
+                I&apos;m <span className="text-neon-blue">Sagar</span> — a developer who lives at the intersection of beautiful UX and bulletproof security. With 3.4+ years building production apps, I&apos;ve architected CRM systems, real-time communication platforms, and cross-platform mobile experiences.
               </p>
               <p className="font-body text-gray-400 leading-relaxed text-lg">
-                My hacker mindset means I don't just build features — I <span className="text-neon-purple">stress-test them</span>, audit their security posture, and ship systems designed to withstand adversarial conditions.
+                My hacker mindset means I don&apos;t just build features — I <span className="text-neon-purple">stress-test them</span>, audit their security posture, and ship systems designed to withstand adversarial conditions.
               </p>
             </motion.div>
 
@@ -83,7 +104,10 @@ export default function About() {
                   </div>
                   <div className="pb-6">
                     <span className="font-mono text-xs text-neon-green">{item.year}</span>
-                    <p className="font-body text-gray-400 text-sm mt-1 leading-relaxed">{item.event}</p>
+                    <h4 className="font-display text-sm text-white mt-1">
+                      {item.title} <span className="text-neon-blue">@ {item.company}</span>
+                    </h4>
+                    <p className="font-body text-gray-400 text-sm mt-1 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -92,7 +116,7 @@ export default function About() {
 
           {/* Right: role cards + stats */}
           <div className="space-y-8">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {roles.map((role, i) => (
                 <motion.div
                   key={i}
@@ -104,7 +128,7 @@ export default function About() {
                 >
                   <role.icon className="w-8 h-8 mb-3" style={{ color: role.color }} />
                   <h4 className="font-display text-sm font-bold text-white mb-2">{role.title}</h4>
-                  <p className="font-body text-xs text-gray-500 leading-relaxed">{role.desc}</p>
+                  <p className="font-body text-xs text-gray-400 leading-relaxed">{role.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -114,12 +138,12 @@ export default function About() {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="grid grid-cols-4 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
             >
               {stats.map((s, i) => (
                 <div key={i} className="cyber-card rounded-xl p-4 text-center">
                   <div className={`font-display text-2xl font-black ${s.color}`}>{s.val}</div>
-                  <div className="font-mono text-xs text-gray-600 mt-1 uppercase tracking-wider leading-tight">{s.label}</div>
+                  <div className="font-mono text-xs text-gray-400 mt-1 uppercase tracking-wider leading-tight">{s.label}</div>
                 </div>
               ))}
             </motion.div>

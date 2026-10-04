@@ -4,28 +4,26 @@
 
 :root {
   --neon-blue: #00d4ff;
-  --neon-purple: #b000ff;
+  --neon-purple: #b829ff;
   --neon-cyan: #00fff7;
   --neon-green: #00ff88;
   --neon-pink: #ff0080;
   --cyber-black: #020408;
-  --cyber-dark: #050d14;
-  --cyber-card: rgba(5, 20, 40, 0.7);
   --font-display: 'Orbitron', sans-serif;
   --font-body: 'Rajdhani', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; }
 
 body {
   background: var(--cyber-black);
   font-family: var(--font-body);
-  cursor: none;
   overflow-x: hidden;
 }
+
+/* Hide the system cursor only while the custom neon cursor is active (mouse users, motion allowed). */
+html.has-custom-cursor body { cursor: none; }
 
 /* ─── SCROLLBAR ─────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
@@ -58,24 +56,11 @@ body::after {
 
 /* ─── UTILITY CLASSES ───────────────────────────── */
 @layer utilities {
-  .font-display { font-family: var(--font-display); }
-  .font-mono { font-family: var(--font-mono); }
-  .font-body { font-family: var(--font-body); }
-
-  .text-neon-blue { color: var(--neon-blue); }
-  .text-neon-purple { color: var(--neon-purple); }
-  .text-neon-cyan { color: var(--neon-cyan); }
-  .text-neon-green { color: var(--neon-green); }
-  .text-neon-pink { color: var(--neon-pink); }
-
   .glow-blue { text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue); }
-  .glow-purple { text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple); }
   .glow-green { text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green); }
-  .glow-pink { text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink); }
 
   .border-glow-blue { box-shadow: 0 0 10px rgba(0,212,255,0.4), inset 0 0 10px rgba(0,212,255,0.1); }
   .border-glow-purple { box-shadow: 0 0 10px rgba(176,0,255,0.4), inset 0 0 10px rgba(176,0,255,0.1); }
-  .border-glow-green { box-shadow: 0 0 10px rgba(0,255,136,0.4), inset 0 0 10px rgba(0,255,136,0.1); }
 
   .cyber-card {
     background: rgba(5, 20, 40, 0.7);
@@ -92,6 +77,7 @@ body::after {
   .neon-border-animated {
     position: relative;
     overflow: hidden;
+    isolation: isolate;
   }
   .neon-border-animated::before {
     content: '';
@@ -157,6 +143,19 @@ body::after {
   }
 }
 
+/* ─── KEYFRAMES (used by raw CSS above) ─────────── */
+/* Tailwind only emits config keyframes when an animate-* class uses them,
+   so keyframes referenced directly from CSS must live here. */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200vh); }
+}
+
+@keyframes borderSpin {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
 /* ─── MATRIX CANVAS ─────────────────────────────── */
 #matrix-canvas {
   position: fixed;
@@ -173,30 +172,6 @@ body::after {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-}
-
-/* ─── TERMINAL ──────────────────────────────────── */
-.terminal-line::after {
-  content: '█';
-  animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-/* ─── SKILL BARS ────────────────────────────────── */
-.skill-bar-fill {
-  background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-  box-shadow: 0 0 10px var(--neon-blue);
-  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ─── CARD 3D HOVER ─────────────────────────────── */
-.card-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease;
 }
 
 /* ─── CONTRIBUTION GRAPH ────────────────────────── */
@@ -225,4 +200,19 @@ body::after {
 /* ─── RESPONSIVE ────────────────────────────────── */
 @media (max-width: 768px) {
   body::before, body::after { display: none; }
+}
+
+/* ─── REDUCED MOTION ("calm mode") ──────────────── */
+/* Keeps the look, drops continuous motion. JS effects (matrix rain, cursor, spotlight,
+   3D sphere) check the same media query; Framer Motion is handled by components/Providers.tsx. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hologram-effect::after,
+  .neon-border-animated::before,
+  .animate-glitch,
+  .animate-marquee,
+  .animate-pulse {
+    animation: none !important;
+  }
+  .cyber-btn::before { transition: none; }
 }

@@ -1,25 +1,25 @@
 'use client'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { SiFlutter, SiDart, SiAngular, SiTypescript, SiJavascript, SiFirebase, SiGit, SiLinux, SiPython } from 'react-icons/si'
-import { Shield, Wifi, Lock } from 'lucide-react'
+import { SiFlutter, SiDart, SiTypescript, SiJavascript, SiFirebase, SiGit, SiLinux, SiReact } from 'react-icons/si'
+import { Shield } from 'lucide-react'
 
 const skills = [
   { name: 'Flutter / Dart', level: 90, color: '#00d4ff', category: 'Mobile' },
-  { name: 'Angular / TypeScript', level: 85, color: '#b000ff', category: 'Frontend' },
+  { name: 'React / TypeScript', level: 60, color: '#b829ff', category: 'Frontend' },
   { name: 'Firebase', level: 80, color: '#00fff7', category: 'Backend' },
-  { name: 'BLoC / Provider', level: 88, color: '#00ff88', category: 'Architecture' },
+  { name: 'BLoC / Provider / GetX', level: 88, color: '#00ff88', category: 'Architecture' },
   { name: 'REST APIs', level: 85, color: '#ff0080', category: 'Integration' },
-  { name: 'Cybersecurity', level: 78, color: '#00ff88', category: 'Security' },
-  { name: 'Networking', level: 75, color: '#00d4ff', category: 'Security' },
-  { name: 'Git / GitHub', level: 92, color: '#b000ff', category: 'DevOps' },
-  { name: 'Linux', level: 82, color: '#00fff7', category: 'Systems' },
+  { name: 'Cybersecurity', level: 65, color: '#00ff88', category: 'Security' },
+  { name: 'Networking', level: 70, color: '#00d4ff', category: 'Security' },
+  { name: 'Git / GitHub', level: 92, color: '#b829ff', category: 'DevOps' },
+  { name: 'Linux', level: 80, color: '#00fff7', category: 'Systems' },
 ]
 
 const techIcons = [
   { icon: SiFlutter, name: 'Flutter', color: '#00d4ff' },
   { icon: SiDart, name: 'Dart', color: '#00d4ff' },
-  { icon: SiAngular, name: 'Angular', color: '#ff0080' },
+  { icon: SiReact, name: 'React', color: '#ff0080' },
   { icon: SiTypescript, name: 'TypeScript', color: '#00d4ff' },
   { icon: SiJavascript, name: 'JavaScript', color: '#ffcc00' },
   { icon: SiFirebase, name: 'Firebase', color: '#ff8800' },
@@ -61,7 +61,7 @@ export default function Skills() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           className="mb-20 text-center"
         >
-          <div className="font-mono text-neon-purple text-sm mb-3">// skills.json</div>
+          <div className="font-mono text-neon-purple text-sm mb-3">{'// skills.json'}</div>
           <h2 className="section-heading text-5xl lg:text-6xl gradient-text mb-4">TECH STACK</h2>
           <div className="w-24 h-px mx-auto" style={{ background: 'linear-gradient(90deg, transparent, var(--neon-purple), transparent)' }} />
         </motion.div>
@@ -98,7 +98,7 @@ export default function Skills() {
                     className="hologram-effect p-4 rounded-xl flex flex-col items-center gap-2 group hover:-translate-y-2 transition-all duration-300 cursor-default"
                   >
                     <Icon className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" style={{ color }} />
-                    <span className="font-mono text-xs text-gray-500">{name}</span>
+                    <span className="font-mono text-xs text-gray-400">{name}</span>
                   </motion.div>
                 ))}
               </div>
@@ -132,7 +132,7 @@ export default function Skills() {
             {[...techIcons, ...techIcons].map(({ icon: Icon, name, color }, i) => (
               <div key={i} className="flex items-center gap-2 px-4">
                 <Icon style={{ color }} className="w-5 h-5" />
-                <span className="font-display text-sm tracking-widest text-gray-600">{name.toUpperCase()}</span>
+                <span className="font-display text-sm tracking-widest text-gray-400">{name.toUpperCase()}</span>
               </div>
             ))}
           </div>

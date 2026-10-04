@@ -1,7 +1,8 @@
 'use client'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { Smartphone, Globe, Shield, Palette, Database, Zap } from 'lucide-react'
+import { Smartphone, Globe, Shield, Palette, Database, Zap, ArrowRight } from 'lucide-react'
+import { requestContactPrefill } from '../../lib/contactPrefill'
 
 const services = [
   {
@@ -14,9 +15,9 @@ const services = [
   {
     icon: Globe,
     title: 'Frontend Engineering',
-    desc: 'Enterprise-grade Angular SPAs with TypeScript, reactive patterns, NgRx, and pixel-perfect responsive designs.',
-    color: '#b000ff',
-    tags: ['Angular', 'TypeScript', 'RxJS', 'NgRx'],
+    desc: 'Modern React web apps with TypeScript, component-driven architecture, smooth animations, and pixel-perfect responsive designs.',
+    color: '#b829ff',
+    tags: ['React', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
   },
   {
     icon: Shield,
@@ -61,7 +62,7 @@ export default function Services() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           className="mb-20 text-center"
         >
-          <div className="font-mono text-neon-pink text-sm mb-3">// services.api</div>
+          <div className="font-mono text-neon-pink text-sm mb-3">{'// services.api'}</div>
           <h2 className="section-heading text-5xl lg:text-6xl gradient-text mb-4">SERVICES</h2>
           <div className="w-24 h-px mx-auto" style={{ background: 'linear-gradient(90deg, transparent, var(--neon-pink), transparent)' }} />
         </motion.div>
@@ -73,8 +74,7 @@ export default function Services() {
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.1 + i * 0.1 }}
-              className="hologram-effect rounded-2xl p-7 group hover:-translate-y-3 transition-all duration-500 cursor-default"
-              style={{ '--hover-color': service.color } as React.CSSProperties}
+              className="hologram-effect rounded-2xl p-7 group hover:-translate-y-3 transition-all duration-500 flex flex-col"
             >
               {/* Icon */}
               <div
@@ -85,14 +85,9 @@ export default function Services() {
               </div>
 
               {/* Title */}
-              <h3
-                className="font-display text-lg font-bold text-white mb-3 group-hover:transition-colors group-hover:duration-300"
-                style={{ color: undefined }}
-              >
-                {service.title}
-              </h3>
-              
-              <p className="font-body text-gray-400 text-sm leading-relaxed mb-4">{service.desc}</p>
+              <h3 className="font-display text-lg font-bold text-white mb-3">{service.title}</h3>
+
+              <p className="font-body text-gray-400 text-sm leading-relaxed mb-4 flex-1">{service.desc}</p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-800">
@@ -106,6 +101,17 @@ export default function Services() {
                   </span>
                 ))}
               </div>
+
+              {/* CTA: jumps to the contact form with the subject pre-filled */}
+              <a
+                href="#contact"
+                onClick={() => requestContactPrefill(`${service.title} inquiry`)}
+                aria-label={`Discuss ${service.title}`}
+                className="mt-5 inline-flex items-center gap-2 self-start font-display text-xs tracking-widest uppercase transition-all duration-300 hover:gap-3"
+                style={{ color: service.color }}
+              >
+                Discuss this <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>
             </motion.div>
           ))}
         </div>
