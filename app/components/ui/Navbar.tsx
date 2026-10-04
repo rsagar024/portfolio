@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Terminal } from 'lucide-react'
 import { NAV_ITEMS } from '../../lib/navigation'
+import { RESUME_URL } from '../../lib/site'
 
 export default function Navbar({ hasResume }: { hasResume: boolean }) {
   const [scrolled, setScrolled] = useState(false)
@@ -87,7 +88,7 @@ export default function Navbar({ hasResume }: { hasResume: boolean }) {
           ))}
           {hasResume && (
             <a
-              href="/resume.pdf"
+              href={RESUME_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="cyber-btn px-4 py-2 text-xs border border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-cyber-black transition-all duration-300 font-display tracking-widest border-glow-blue"
@@ -133,7 +134,7 @@ export default function Navbar({ hasResume }: { hasResume: boolean }) {
               ))}
               {hasResume && (
                 <a
-                  href="/resume.pdf"
+                  href={RESUME_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}

@@ -25,6 +25,15 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['300', '400', '500', '600', '700'],
 })
 
+// Social share image (public/og-image.png). Absolute URL: with a GitHub Pages basePath, relative
+// image paths get the /portfolio prefix twice when resolved against metadataBase.
+const OG_IMAGE = {
+  url: `${SITE_URL}/og-image.png`,
+  width: 1200,
+  height: 630,
+  alt: 'Sagar — Flutter Developer, Frontend Engineer & Ethical Hacker',
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: SITE.title,
@@ -37,11 +46,13 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: SITE.name,
+    images: [OG_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Sagar | Cyberpunk Portfolio',
     description: 'Building futuristic apps & secure digital experiences.',
+    images: [OG_IMAGE],
   },
   robots: { index: true, follow: true },
 }

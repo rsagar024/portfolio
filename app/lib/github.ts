@@ -1,4 +1,4 @@
-// Server-only GitHub data loader. Responses are cached and revalidated hourly (ISR),
+// Server-only GitHub data loader, run at build time (the deploy workflow rebuilds daily),
 // so the public GitHub API's 60 req/hour unauthenticated limit is never an issue.
 // Set GITHUB_TOKEN (no scopes needed) to raise the limit if you ever need to.
 

@@ -5,6 +5,7 @@ import { Github, Linkedin, Mail, ChevronDown, Download } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useMediaQuery, DESKTOP } from '../../lib/useMediaQuery'
 import type { ProjectCount } from '../../lib/playStore'
+import { RESUME_URL } from '../../lib/site'
 
 const Scene3D = dynamic(() => import('../effects/Scene3D'), { ssr: false })
 const MatrixRain = dynamic(() => import('../effects/MatrixRain'), { ssr: false })
@@ -142,7 +143,7 @@ export default function Hero({ contributionsLastYear, projects, hasResume }: { c
             className="flex flex-wrap gap-4"
           >
             {hasResume ? (
-              <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="cyber-btn px-8 py-4 border border-neon-purple text-neon-purple font-display text-sm tracking-widest hover:bg-neon-purple hover:text-cyber-black transition-all duration-300 flex items-center gap-2 border-glow-purple">
+              <a href={RESUME_URL} target="_blank" rel="noopener noreferrer" className="cyber-btn px-8 py-4 border border-neon-purple text-neon-purple font-display text-sm tracking-widest hover:bg-neon-purple hover:text-cyber-black transition-all duration-300 flex items-center gap-2 border-glow-purple">
                 Resume <Download className="w-4 h-4" aria-hidden="true" />
               </a>
             ) : (

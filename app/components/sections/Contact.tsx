@@ -5,6 +5,13 @@ import { useInView } from 'react-intersection-observer'
 import { Send, Mail, Github, Linkedin, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { CONTACT_PREFILL_EVENT, type ContactPrefillDetail } from '../../lib/contactPrefill'
+import { SITE } from '../../lib/site'
+
+// Messages are delivered by FormSubmit (formsubmit.co): free, no account or API key, and works on a
+// static host. The first message from a new site address emails the inbox a one-time "Activate Form"
+// link; once clicked, every message is delivered. Set NEXT_PUBLIC_CONTACT_EMAIL to the random alias
+// FormSubmit sends after activation to keep the address out of the page source.
+const CONTACT_ENDPOINT = `https://formsubmit.co/ajax/${process.env.NEXT_PUBLIC_CONTACT_EMAIL || SITE.email}`
 
 export default function Contact() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
@@ -32,13 +39,30 @@ export default function Contact() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, website }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error || 'Could not send your message. Please try again later.')
+      // Honeypot filled in: a bot. Pretend success so it doesn't retry.
+      if (!website) {
+        const res = await fetch(CONTACT_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            subject: form.subject.trim(),
+            message: form.message.trim(),
+            _subject: `[Portfolio] ${form.subject.trim()}`,
+            _replyto: form.email.trim(),
+            _template: 'table',
+            _captcha: 'false',
+          }),
+        })
+        const data: { success?: string | boolean; message?: string } = await res.json().catch(() => ({}))
+        if (/activat/i.test(data.message ?? '')) {
+          throw new Error('The contact form is being set up. Please try again shortly or email me directly.')
+        }
+        if (!res.ok || String(data.success) !== 'true') {
+          throw new Error('Could not send your message. Please try again later or email me directly.')
+        }
+      }
       toast.success("Message sent! I'll get back to you soon.", {
         icon: <Shield className="w-4 h-4" />,
       })

@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { NAV_ITEMS } from '../../lib/navigation'
+import { RESUME_URL } from '../../lib/site'
 
 // 5×7 pixel font for the banner. Drawn as SVG squares rather than block characters (█), whose
 // width and spacing depend on each device's fallback font. The viewBox scales it to any screen.
@@ -240,7 +241,7 @@ export default function CyberTerminal({ hasResume }: { hasResume: boolean }) {
       }
       case 'resume':
         if (!hasResume) return out(['resume.pdf: not uploaded yet.', '> Email sagarsahusts@gmail.com for a copy, or run "cd contact".'])
-        window.open('/resume.pdf', '_blank', 'noopener,noreferrer')
+        window.open(RESUME_URL, '_blank', 'noopener,noreferrer')
         return out(['Opening /resume.pdf in a new tab...'])
       case 'socials':
         return out([

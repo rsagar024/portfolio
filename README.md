@@ -3,20 +3,20 @@
 > Senior Flutter Developer · React Frontend · Ethical Hacker
 > Built with Next.js 15, React 19, React Three Fiber, Framer Motion, Radix UI and Tailwind CSS
 
-A single-page portfolio with a cyberpunk look: matrix rain, a 3D glass globe, an interactive terminal, live GitHub data and a working contact form, with no paid services or API keys.
+A single-page portfolio with a cyberpunk look: matrix rain, a 3D glass globe, an interactive terminal, live GitHub data and a working contact form, with no paid services or API keys. It's a fully static site hosted free on **GitHub Pages**: https://rsagar024.github.io/portfolio/
 
 ---
 
 ## ✨ Features
 
 - **Hero:** typing roles, a transparent 3D globe (desktop only) and floating code snippets
-- **Live stats:** project count (own GitHub repos + apps still published on Google Play) and GitHub contributions, refreshed automatically
+- **Live stats:** project count (own GitHub repos + apps still published on Google Play) and GitHub contributions, refreshed by a daily rebuild
 - **Experience:** timeline for Latinem, Quokka Labs and LeadRat, with Google Play links to every shipped app
 - **Projects:** work apps and personal GitHub projects, filterable (All / Professional / Personal), with a detail modal, live stars/forks and Play Store / GitHub links
 - **GitHub:** profile stats, contribution graph, top repos and languages
 - **Cyber Terminal:** interactive shell (`help`, `whoami`, `projects`, `ls`, `cd`, `hack`, `matrix`…) with a pixel-art name banner that scales from phone to desktop
-- **Contact:** free email delivery via [FormSubmit](https://formsubmit.co) to `sagarsahusts@gmail.com`, with validation, a honeypot and rate limiting
-- **SEO:** metadata, generated Open Graph/Twitter images, `sitemap.xml`, `robots.txt` and JSON-LD
+- **Contact:** free email delivery via [FormSubmit](https://formsubmit.co) to `sagarsahusts@gmail.com`, with validation and a bot honeypot
+- **SEO:** metadata, Open Graph/Twitter share image, `sitemap.xml`, `robots.txt` and JSON-LD
 - **Accessible:** keyboard-friendly modal, screen-reader labels, and a "calm mode" for `prefers-reduced-motion`
 
 ---
@@ -36,7 +36,7 @@ npm run dev                  # http://localhost:3000
 | Command | What it does |
 |---|---|
 | `npm run dev` | Dev server on http://localhost:3000 |
-| `npm run build` / `npm start` | Production build / serve |
+| `npm run build` | Static production build into `out/` (preview it with `npx serve out`) |
 | `npm run lint` | ESLint (Next core-web-vitals + TypeScript rules) |
 | `npm run typecheck` | TypeScript check (`tsc --noEmit`) |
 | `npm run format` / `format:check` | Prettier write / check |
@@ -51,19 +51,19 @@ All variables are optional. See `.env.example`.
 |---|---|---|
 | `NEXT_PUBLIC_GITHUB_USERNAME` | GitHub account for live stats and repos | `rsagar024` |
 | `GITHUB_TOKEN` | Raises the GitHub API rate limit (no scopes needed) | — |
-| `NEXT_PUBLIC_SITE_URL` | Real domain for canonical URL, OG links, sitemap, JSON-LD and FormSubmit activation | Vercel production domain, else `https://sagar.dev` |
-| `CONTACT_TO_EMAIL` | Inbox for contact-form messages | `sagarsahusts@gmail.com` |
+| `NEXT_PUBLIC_SITE_URL` | Public site address for canonical URL, share image, sitemap and JSON-LD | Set by the deploy workflow; locally `https://sagar.dev` |
+| `NEXT_PUBLIC_BASE_PATH` | Path prefix the site is served from (`/portfolio` on GitHub Pages) | Set by the deploy workflow; empty locally |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Inbox (or FormSubmit alias) for contact-form messages | `sagarsahusts@gmail.com` |
 
 ### Contact form (FormSubmit: free, no API key)
 
-The form posts to `app/api/contact/route.ts`, which validates input, blocks bots (honeypot + 5 messages / 10 min per IP) and forwards the message through FormSubmit.
+`Contact.tsx` sends messages straight from the browser to FormSubmit, so it works on a static host. A hidden honeypot field silently drops bot submissions.
 
-1. Set `NEXT_PUBLIC_SITE_URL` to your real domain and deploy.
-2. Send one message from the contact form. FormSubmit emails the inbox an **"Activate Form"** link. Click it once. That first message isn't delivered.
-3. Every message after that arrives in the inbox. Reply goes straight to the sender.
-4. *(Optional)* To hide your address, set `CONTACT_TO_EMAIL` to the random alias FormSubmit sends after activation.
+1. Open the live site and send one message from the contact form. FormSubmit emails the inbox an **"Activate Form"** link. Click it once. That first message isn't delivered.
+2. Every message after that arrives in the inbox. Reply goes straight to the sender.
+3. *(Optional)* To keep your address out of the page source, set `NEXT_PUBLIC_CONTACT_EMAIL` to the random alias FormSubmit sends after activation (in `.env.local`, or as an `env` entry on the build step in the workflow).
 
-If you change `NEXT_PUBLIC_SITE_URL` later, repeat the activation once.
+Activation is per site address: if you move to a custom domain, repeat it once.
 
 ### Resume
 
@@ -93,7 +93,6 @@ Put your resume at `public/resume.pdf`. The Resume buttons appear only when the 
 
 ```
 app/
-├── api/contact/route.ts        # Contact form → FormSubmit
 ├── components/
 │   ├── Providers.tsx           # Reduced-motion config, decorative icons
 │   ├── effects/                # Cursor, matrix rain, spotlight, 3D globe, scroll reset
@@ -103,25 +102,37 @@ app/
 ├── lib/
 │   ├── github.ts               # Server-side GitHub loader (cached hourly)
 │   ├── playStore.ts            # Play Store app IDs + live published-app count (cached daily)
-│   ├── site.ts                 # Site URL, GitHub user, personal info
+│   ├── site.ts                 # Site URL, base path, GitHub user, personal info
 │   ├── resume.ts               # Detects public/resume.pdf
 │   ├── navigation.ts           # Section links
 │   ├── contactPrefill.ts       # Services → contact form subject prefill
 │   └── useMediaQuery.ts        # Reduced motion / pointer / desktop queries
-├── icon.svg, opengraph-image.tsx, twitter-image.tsx, robots.ts, sitemap.ts
+├── icon.svg, robots.ts, sitemap.ts
 ├── globals.css                 # Cyberpunk CSS system
 ├── layout.tsx                  # Root layout, fonts, SEO metadata
-└── page.tsx                    # Server component: fetches live data, assembles sections
-public/                         # Static assets (resume.pdf goes here)
+└── page.tsx                    # Fetches live data at build time, assembles sections
+.github/workflows/deploy.yml    # Build + publish to GitHub Pages (on push and daily)
+public/                         # Static assets: og-image.png, resume.pdf
 ```
 
 ---
 
 ## 📦 Deployment
 
-**Vercel (recommended):** import the repo at [vercel.com/new](https://vercel.com/new). Every push to `master` deploys. Set `NEXT_PUBLIC_SITE_URL` in the project's environment variables, then activate the contact form (see above).
+### GitHub Pages (current)
 
-**Any Node host:** `npm run build && npm start`.
+`next.config.js` uses `output: 'export'`, so `npm run build` produces a static site in `out/`. `.github/workflows/deploy.yml` builds and publishes it:
+- on every push to `master`
+- daily at 00:30 UTC, so GitHub and Play Store stats stay fresh
+- manually from the **Actions** tab ("Run workflow")
+
+**One-time setup:** repo **Settings → Pages → Build and deployment → Source: GitHub Actions**. The workflow sets the base path (`/portfolio`) and site URL automatically. Then activate the contact form (see above).
+
+**Custom domain:** add it in Settings → Pages. The workflow picks up the new address and drops the `/portfolio` prefix automatically. Re-activate the contact form once.
+
+### Elsewhere
+
+`out/` is plain HTML/CSS/JS, so any static host works (Netlify, Cloudflare Pages, Vercel).
 
 ---
 
@@ -146,7 +157,7 @@ public/                         # Static assets (resume.pdf goes here)
 
 - Three.js and the matrix canvas are loaded dynamically; the 3D globe only mounts on desktop.
 - The 3D render loop pauses when the hero is off-screen; canvas animations pause in hidden tabs.
-- GitHub data is cached on the server and refreshed hourly; Play Store checks are refreshed daily.
+- Live data (GitHub, Play Store) is fetched at build time, so visitors never wait on external APIs.
 - Scroll animations run once per element.
 - `prefers-reduced-motion` turns off matrix rain, the custom cursor and continuous animations.
 

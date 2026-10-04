@@ -9,6 +9,10 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || vercelUrl || 'https
 
 export const GITHUB_USER = process.env.NEXT_PUBLIC_GITHUB_USERNAME || 'rsagar024'
 
+// GitHub Pages serves the site from /<repo>; files in public/ need this prefix (next.config.js basePath).
+export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
+export const RESUME_URL = `${BASE_PATH}/resume.pdf`
+
 export const SITE = {
   name: 'Sagar',
   title: 'Sagar | Flutter Dev · Frontend Eng · Ethical Hacker',
