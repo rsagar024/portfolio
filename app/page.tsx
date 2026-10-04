@@ -22,9 +22,9 @@ const personJsonLd = {
   name: SITE.name,
   url: SITE_URL,
   email: `mailto:${SITE.email}`,
-  jobTitle: 'Flutter Developer & React Frontend Engineer',
+  jobTitle: 'Senior Flutter Developer',
   description: SITE.description,
-  worksFor: { '@type': 'Organization', name: 'LeadRat CRM' },
+  worksFor: { '@type': 'Organization', name: 'Latinem' },
   sameAs: [SITE.github, SITE.linkedin],
   knowsAbout: ['Flutter', 'Dart', 'React', 'TypeScript', 'Firebase', 'Cybersecurity', 'Ethical Hacking', 'REST APIs'],
 }
